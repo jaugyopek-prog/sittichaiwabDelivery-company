@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>อัตราค่าบริการ — ทันควัน DISPATCH</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Sarabun:wght@400;600&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/tankwan-core.css">
+<style>
+  .wrap-narrow{ max-width:800px; margin:40px auto; padding:0 6%; }
+  table{ width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 5px 20px rgba(0,0,0,0.05); }
+  th, td{ padding:16px; text-align:left; border-bottom:1px solid var(--line); }
+  th{ background:var(--ink); color:#fff; font-family:'Chakra Petch', sans-serif; font-size:.88rem; }
+  .price{ font-family:'IBM Plex Mono', monospace; font-weight:700; color:var(--coral); }
+
+  .calc-card{ padding:26px; margin-bottom:28px; }
+  .calc-result{ background:var(--ink); color:#fff; border-radius:12px; padding:18px 22px; display:flex; justify-content:space-between; align-items:center; margin-top:16px; flex-wrap:wrap; gap:10px; }
+  .calc-result .amount{ font-family:'IBM Plex Mono', monospace; font-size:1.7rem; color:var(--coral); font-weight:700; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo"><i class="fa-solid fa-bolt"></i> ทันควัน DISPATCH</a>
+  <button class="nav-toggle" aria-label="เปิดเมนู" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="tankwan-booking.html">จองส่งพัสดุ</a>
+    <a href="tankwan-tracking.html">ติดตามพัสดุ</a>
+    <a href="tankwan-rates.html">เช็คราคา</a>
+    <a href="tankwan-dropoff.html">จุดดรอป/ล็อกเกอร์</a>
+    <a href="tankwan-coverage.html">พื้นที่บริการ</a>
+    <a href="tankwan-business.html">สำหรับร้านค้า</a>
+    <a href="tankwan-cold-chain.html">คุมอุณหภูมิ</a>
+    <a href="tankwan-help.html">ช่วยเหลือ</a>
+  </nav>
+</header>
+
+<div class="wrap-narrow">
+  <h1 style="font-family:'Chakra Petch';">คำนวณค่าจัดส่ง</h1>
+
+  <div class="card calc-card">
+    <h3 style="margin-bottom:14px;"><i class="fa-solid fa-calculator" style="color:var(--coral);"></i> เครื่องคำนวณราคาด่วน</h3>
+    <div class="grid-3">
+      <div class="field" style="margin:0;">
+        <label for="calcService">ประเภทบริการ</label>
+        <select id="calcService">
+          <option value="express">ส่งด่วนในเมือง (Express)</option>
+          <option value="cold">คุมอุณหภูมิ (Cold Chain)</option>
+          <option value="dropoff">ฝากตู้ล็อกเกอร์ (Drop-off)</option>
+        </select>
+      </div>
+      <div class="field" style="margin:0;">
+        <label for="calcWeight">น้ำหนัก (กก.)</label>
+        <input type="number" id="calcWeight" value="1" min="0.1" step="0.1">
+      </div>
+      <div class="field" style="margin:0;">
+        <label for="calcZone">พื้นที่ปลายทาง (ไม่บังคับ)</label>
+        <input type="text" id="calcZone" placeholder="เช่น นิมมาน, สารภี">
+      </div>
+    </div>
+    <div class="calc-result">
+      <span id="calcZoneNote">ระบุพื้นที่เพื่อดูเวลาจัดส่งโดยประมาณ</span>
+      <span class="amount" id="calcAmount">฿40</span>
+    </div>
+  </div>
+
+  <h2 style="font-family:'Chakra Petch';">ตารางอัตราค่าจัดส่งมาตรฐาน</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>น้ำหนัก (กก.)</th>
+        <th>ส่งด่วนในเมือง (Express)</th>
+        <th>คุมอุณหภูมิ (Cold Chain)</th>
+        <th>ฝากตู้ล็อกเกอร์ (Drop-off)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>0.1 - 1.0 กก.</td><td class="price">฿40</td><td class="price">฿80</td><td class="price">฿25</td></tr>
+      <tr><td>1.1 - 3.0 กก.</td><td class="price">฿60</td><td class="price">฿100</td><td class="price">฿35</td></tr>
+      <tr><td>3.1 - 5.0 กก.</td><td class="price">฿80</td><td class="price">฿130</td><td class="price">฿50</td></tr>
+      <tr><td>5.1 - 10.0 กก.</td><td class="price">฿120</td><td class="price">฿180</td><td class="price">฿80</td></tr>
+      <tr><td>เกิน 10.0 กก.</td><td class="price">+18/กก.</td><td class="price">+22/กก.</td><td class="price">+14/กก.</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:16px; font-size:0.85rem; color:#6B7280;">* ค่าบริการรวมการประกันพัสดุพื้นฐานวงเงินไม่เกิน 2,000 บาท และคำนวณจากน้ำหนักจริงหรือน้ำหนักตามปริมาตร (กว้าง×ยาว×สูง(ซม.) ÷ 5000) แล้วแต่ค่าใดมากกว่า</p>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 ทันควัน DISPATCH · เว็บไซต์จำลองสำหรับโปรเจกต์การเรียน</p>
+</footer>
+
+<script src="js/tankwan-utils.js"></script>
+<script src="js/tankwan-nav.js"></script>
+<script src="js/tankwan-audio.js"></script>
+<script>
+  function updateCalc(){
+    const service = document.getElementById('calcService').value;
+    const weight = parseFloat(document.getElementById('calcWeight').value) || 0.1;
+    const zoneQuery = document.getElementById('calcZone').value;
+    const { price, chargeWeight } = Tankwan.calculateShippingFee(service, weight);
+    document.getElementById('calcAmount').textContent = Tankwan.formatTHB(price) + ` (${chargeWeight.toFixed(2)} กก.)`;
+
+    const zone = Tankwan.findZoneByArea(zoneQuery);
+    document.getElementById('calcZoneNote').textContent = zone ? `${zone.label} · ${zone.eta}` : 'ระบุพื้นที่เพื่อดูเวลาจัดส่งโดยประมาณ';
+  }
+  ['calcService','calcWeight','calcZone'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateCalc);
+    document.getElementById(id).addEventListener('change', updateCalc);
+  });
+  updateCalc();
+</script>
+
+</body>
+</html>

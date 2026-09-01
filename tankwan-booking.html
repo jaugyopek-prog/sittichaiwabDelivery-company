@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>จองพัสดุ — ทันควัน DISPATCH</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Sarabun:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/tankwan-core.css">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/@googlemaps/extended-component-library/0.6.15/index.min.js"></script>
+<style>
+  .wrap-narrow{ max-width:800px; margin:40px auto; padding:0 6%; }
+  .form-card{ background:#fff; border-radius:16px; padding:32px; border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,0.05); }
+
+  .steps{ display:flex; gap:6px; margin-bottom:28px; }
+  .steps .step-dot{ flex:1; height:6px; border-radius:4px; background:var(--line); }
+  .steps .step-dot.on{ background:var(--coral); }
+
+  .section-title{ font-size:1.15rem; color:var(--ink); border-left:4px solid var(--coral); padding-left:10px; margin:26px 0 16px; display:flex; align-items:center; gap:8px; }
+  .section-title .n{ font-family:'IBM Plex Mono', monospace; color:var(--coral); }
+
+  .map-field{ margin-bottom:16px; }
+  gmp-map.map-picker{ height:200px; width:100%; border-radius:12px; overflow:hidden; display:block; }
+  .map-fallback{ background:#F3F5F8; border:1px dashed var(--line); border-radius:12px; padding:16px; font-size:.82rem; color:var(--gray); text-align:center; }
+  .coords-tag{ font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--gray); margin-top:4px; }
+
+  .schedule-toggle{ display:flex; gap:10px; margin-bottom:14px; }
+  .schedule-toggle label{ flex:1; border:2px solid var(--line); border-radius:10px; padding:12px; text-align:center; font-weight:700; font-size:.9rem; cursor:pointer; color:var(--gray); }
+  .schedule-toggle input{ display:none; }
+  .schedule-toggle input:checked + span{ color:var(--coral-deep); }
+  .schedule-toggle label:has(input:checked){ border-color:var(--coral); background:var(--coral-soft); }
+
+  .price-box{ background:var(--ink); color:#fff; padding:20px; border-radius:12px; margin-top:24px; }
+  .price-box .row{ display:flex; justify-content:space-between; align-items:center; font-size:.85rem; color:#b9c2d1; padding:4px 0; }
+  .price-box .total-row{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:10px; border-top:1px solid #2b3547; }
+  .price-amount{ font-family:'IBM Plex Mono', monospace; font-size:1.8rem; color:var(--coral); font-weight:700; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo"><i class="fa-solid fa-bolt"></i> ทันควัน DISPATCH</a>
+  <button class="nav-toggle" aria-label="เปิดเมนู" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="tankwan-booking.html">จองส่งพัสดุ</a>
+    <a href="tankwan-tracking.html">ติดตามพัสดุ</a>
+    <a href="tankwan-rates.html">เช็คราคา</a>
+    <a href="tankwan-dropoff.html">จุดดรอป/ล็อกเกอร์</a>
+    <a href="tankwan-coverage.html">พื้นที่บริการ</a>
+    <a href="tankwan-business.html">สำหรับร้านค้า</a>
+    <a href="tankwan-cold-chain.html">คุมอุณหภูมิ</a>
+    <a href="tankwan-help.html">ช่วยเหลือ</a>
+  </nav>
+</header>
+
+<div class="wrap-narrow">
+  <div class="form-card">
+    <h2><i class="fa-solid fa-paper-plane" style="color:var(--coral);"></i> จองส่งพัสดุด่วน</h2>
+    <div class="steps" aria-hidden="true">
+      <div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot"></div>
+    </div>
+
+    <form id="bookingForm" novalidate>
+
+      <div class="section-title"><span class="n">01</span> ข้อมูลผู้ส่ง</div>
+      <div class="grid-2">
+        <div class="field" data-field="senderName">
+          <label for="senderName">ชื่อผู้ส่ง</label>
+          <input type="text" id="senderName" placeholder="ชื่อ-นามสกุล">
+          <div class="error-msg">กรุณากรอกชื่อผู้ส่ง</div>
+        </div>
+        <div class="field" data-field="senderPhone">
+          <label for="senderPhone">เบอร์โทรศัพท์</label>
+          <input type="tel" id="senderPhone" placeholder="08X-XXX-XXXX">
+          <div class="error-msg">กรุณากรอกเบอร์โทร 10 หลักให้ถูกต้อง</div>
+        </div>
+      </div>
+      <div class="field" data-field="senderAddress">
+        <label for="senderAddrInput">ค้นหาที่อยู่เข้ารับพัสดุ (แผนที่)</label>
+        <input type="text" id="senderAddrInput" data-picker-input="pickup" placeholder="พิมพ์เพื่อค้นหาที่อยู่บนแผนที่">
+        <div class="map-field" style="margin-top:10px;">
+          <gmp-map class="map-picker" data-picker="pickup" center="18.7883,98.9853" zoom="12" map-id="DEMO_MAP_ID">
+            <gmp-advanced-marker></gmp-advanced-marker>
+          </gmp-map>
+          <div class="coords-tag" data-picker-coords="pickup"></div>
+        </div>
+        <label for="senderAddress" style="margin-top:10px;">รายละเอียดที่อยู่ (บ้านเลขที่, ถนน, อำเภอ/จังหวัด)</label>
+        <textarea rows="2" id="senderAddress" placeholder="บ้านเลขที่, ถนน, อำเภอ/จังหวัด"></textarea>
+        <div class="error-msg">กรุณากรอกที่อยู่เข้ารับพัสดุ</div>
+      </div>
+
+      <div class="section-title"><span class="n">02</span> ข้อมูลผู้รับ</div>
+      <div class="grid-2">
+        <div class="field" data-field="receiverName">
+          <label for="receiverName">ชื่อผู้รับ</label>
+          <input type="text" id="receiverName" placeholder="ชื่อ-นามสกุล">
+          <div class="error-msg">กรุณากรอกชื่อผู้รับ</div>
+        </div>
+        <div class="field" data-field="receiverPhone">
+          <label for="receiverPhone">เบอร์โทรศัพท์</label>
+          <input type="tel" id="receiverPhone" placeholder="08X-XXX-XXXX">
+          <div class="error-msg">กรุณากรอกเบอร์โทร 10 หลักให้ถูกต้อง</div>
+        </div>
+      </div>
+      <div class="field" data-field="receiverAddress">
+        <label for="receiverAddrInput">ค้นหาที่อยู่จัดส่ง (แผนที่)</label>
+        <input type="text" id="receiverAddrInput" data-picker-input="dropoff" placeholder="พิมพ์เพื่อค้นหาที่อยู่บนแผนที่">
+        <div class="map-field" style="margin-top:10px;">
+          <gmp-map class="map-picker" data-picker="dropoff" center="18.7883,98.9853" zoom="12" map-id="DEMO_MAP_ID">
+            <gmp-advanced-marker></gmp-advanced-marker>
+          </gmp-map>
+          <div class="coords-tag" data-picker-coords="dropoff"></div>
+        </div>
+        <label for="receiverAddress" style="margin-top:10px;">รายละเอียดที่อยู่ (บ้านเลขที่, ถนน, อำเภอ/จังหวัด)</label>
+        <textarea rows="2" id="receiverAddress" placeholder="บ้านเลขที่, ถนน, อำเภอ/จังหวัด"></textarea>
+        <div class="error-msg">กรุณากรอกที่อยู่จัดส่ง</div>
+        <div class="hint" id="zoneHint"></div>
+      </div>
+
+      <div class="section-title"><span class="n">03</span> รายละเอียดพัสดุ & บริการ</div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="serviceType">ประเภทบริการ</label>
+          <select id="serviceType">
+            <option value="express">ส่งด่วนปกติ (Express Pickup)</option>
+            <option value="cold">คุมอุณหภูมิแช่เย็น (Cold Chain)</option>
+            <option value="dropoff">จุดดรอป/ล็อกเกอร์ (Drop-off)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="weight">น้ำหนักพัสดุจริง (กก.)</label>
+          <input type="number" id="weight" value="1" min="0.1" step="0.1">
+        </div>
+      </div>
+      <div class="field">
+        <label>ขนาดกล่อง (ไม่บังคับ — ใช้คำนวณน้ำหนักตามปริมาตรถ้ากล่องใหญ่กว่าน้ำหนักจริง)</label>
+        <div class="grid-3">
+          <input type="number" id="dimW" placeholder="กว้าง (ซม.)" min="0">
+          <input type="number" id="dimL" placeholder="ยาว (ซม.)" min="0">
+          <input type="number" id="dimH" placeholder="สูง (ซม.)" min="0">
+        </div>
+        <div class="hint" id="volHint"></div>
+      </div>
+
+      <div class="field">
+        <label>เวลาเข้ารับพัสดุ</label>
+        <div class="schedule-toggle">
+          <label><input type="radio" name="schedule" value="now" checked><span><i class="fa-solid fa-bolt"></i> ตอนนี้ (ด่วนที่สุด)</span></label>
+          <label><input type="radio" name="schedule" value="later"><span><i class="fa-regular fa-clock"></i> นัดเวลาล่วงหน้า</span></label>
+        </div>
+        <input type="datetime-local" id="scheduleTime" style="display:none;">
+      </div>
+
+      <div class="price-box">
+        <div class="row"><span>น้ำหนักที่ใช้คิดราคา</span><span id="chargeWeightLbl">1.00 กก.</span></div>
+        <div class="row"><span>พื้นที่ปลายทาง</span><span id="etaLbl">ระบุที่อยู่เพื่อดูเวลาโดยประมาณ</span></div>
+        <div class="total-row">
+          <span>ประเมินค่าจัดส่ง</span>
+          <span class="price-amount" id="totalPrice">฿40</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-coral btn-block" style="margin-top:20px;">ยืนยันการจองเรียกรถ →</button>
+    </form>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 ทันควัน DISPATCH · เว็บไซต์จำลองสำหรับโปรเจกต์การเรียน</p>
+</footer>
+
+<script src="js/tankwan-utils.js"></script>
+<script src="js/tankwan-nav.js"></script>
+<script src="js/tankwan-audio.js"></script>
+<script type="module" src="js/tankwan-location-picker.js"></script>
+<script>
+  const serviceEl = document.getElementById('serviceType');
+  const weightEl = document.getElementById('weight');
+  const dimW = document.getElementById('dimW'), dimL = document.getElementById('dimL'), dimH = document.getElementById('dimH');
+  const receiverAddress = document.getElementById('receiverAddress');
+  const receiverAddrInput = document.getElementById('receiverAddrInput');
+
+  function currentDims(){
+    const w = parseFloat(dimW.value), l = parseFloat(dimL.value), h = parseFloat(dimH.value);
+    return (w && l && h) ? { w, l, h } : null;
+  }
+
+  function recalc(){
+    const service = serviceEl.value;
+    const weight = parseFloat(weightEl.value) || 0.1;
+    const dims = currentDims();
+    const { chargeWeight, price } = Tankwan.calculateShippingFee(service, weight, dims);
+
+    document.getElementById('chargeWeightLbl').textContent = chargeWeight.toFixed(2) + ' กก.';
+    document.getElementById('totalPrice').textContent = Tankwan.formatTHB(price);
+
+    const volHint = document.getElementById('volHint');
+    if (dims) {
+      const vol = Tankwan.calcVolumetricWeight(dims.w, dims.l, dims.h);
+      volHint.textContent = `น้ำหนักตามปริมาตร ≈ ${vol.toFixed(2)} กก. (ระบบใช้ค่าที่มากกว่าระหว่างน้ำหนักจริงกับน้ำหนักตามปริมาตร)`;
+    } else {
+      volHint.textContent = '';
+    }
+
+    const zone = Tankwan.findZoneByArea(receiverAddress.value || receiverAddrInput.value);
+    const etaLbl = document.getElementById('etaLbl');
+    const zoneHint = document.getElementById('zoneHint');
+    if (zone) {
+      etaLbl.textContent = `${zone.label.split(':')[0]} · ${zone.eta}`;
+      zoneHint.textContent = `ตรวจพบว่าอยู่ใน ${zone.label} — ${zone.eta}`;
+    } else {
+      etaLbl.textContent = 'ระบุที่อยู่เพื่อดูเวลาโดยประมาณ';
+      zoneHint.textContent = '';
+    }
+  }
+  [serviceEl, weightEl, dimW, dimL, dimH].forEach(el => el.addEventListener('input', recalc));
+  receiverAddress.addEventListener('input', recalc);
+  receiverAddrInput.addEventListener('input', recalc);
+  recalc();
+
+  // ---- Schedule toggle ----
+  const scheduleTimeEl = document.getElementById('scheduleTime');
+  document.querySelectorAll('input[name="schedule"]').forEach(r => {
+    r.addEventListener('change', () => {
+      scheduleTimeEl.style.display = (r.value === 'later' && r.checked) ? 'block' : scheduleTimeEl.style.display;
+      if (r.checked && r.value === 'now') scheduleTimeEl.style.display = 'none';
+      if (r.checked && r.value === 'later') scheduleTimeEl.style.display = 'block';
+    });
+  });
+
+  // ---- Validation helpers ----
+  function setError(fieldKey, hasError){
+    const el = document.querySelector(`[data-field="${fieldKey}"]`);
+    if (el) el.classList.toggle('has-error', hasError);
+  }
+
+  function validate(){
+    let ok = true;
+    const senderName = document.getElementById('senderName').value.trim();
+    const senderPhone = document.getElementById('senderPhone').value.trim();
+    const senderAddress = document.getElementById('senderAddress').value.trim();
+    const receiverName = document.getElementById('receiverName').value.trim();
+    const receiverPhone = document.getElementById('receiverPhone').value.trim();
+    const receiverAddr = receiverAddress.value.trim();
+
+    setError('senderName', !senderName); ok = ok && !!senderName;
+    setError('senderPhone', !Tankwan.validateThaiPhone(senderPhone)); ok = ok && Tankwan.validateThaiPhone(senderPhone);
+    setError('senderAddress', !senderAddress); ok = ok && !!senderAddress;
+    setError('receiverName', !receiverName); ok = ok && !!receiverName;
+    setError('receiverPhone', !Tankwan.validateThaiPhone(receiverPhone)); ok = ok && Tankwan.validateThaiPhone(receiverPhone);
+    setError('receiverAddress', !receiverAddr); ok = ok && !!receiverAddr;
+
+    return { ok, receiverName };
+  }
+
+  document.getElementById('bookingForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const { ok, receiverName } = validate();
+    if (!ok) {
+      Tankwan.showToast('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
+      document.querySelector('.has-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    const service = serviceEl.value;
+    const weight = parseFloat(weightEl.value) || 0.1;
+    const dims = currentDims();
+    const { price } = Tankwan.calculateShippingFee(service, weight, dims);
+    const orderId = Tankwan.generateTrackingId('TKW-CITY');
+    const isScheduled = document.querySelector('input[name="schedule"]:checked').value === 'later';
+    const scheduleTime = isScheduled ? scheduleTimeEl.value : '';
+
+    const params = new URLSearchParams({
+      order: orderId,
+      price: price,
+      service: Tankwan.RATE_TABLE[service].label,
+      receiver: receiverName,
+      scheduled: scheduleTime,
+    });
+    window.location.href = 'tankwan-waiting.html?' + params.toString();
+  });
+</script>
+
+</body>
+</html>

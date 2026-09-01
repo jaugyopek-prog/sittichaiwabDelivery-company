@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ขนส่งคุมอุณหภูมิ — ทันควัน DISPATCH</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Sarabun:wght@400;600&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/tankwan-core.css">
+<style>
+  :root{ --blue:#0099FF; }
+  .wrap-narrow{ max-width:850px; margin:40px auto; padding:0 6%; }
+  .cold-card{ background:#fff; border-radius:16px; padding:32px; box-shadow:0 10px 25px rgba(0,0,0,0.05); }
+  .temp-box{ padding:20px; border-radius:12px; text-align:center; color:#fff; position:relative; overflow:hidden; }
+  .chilled{ background:linear-gradient(135deg, #0284C7, #38BDF8); }
+  .frozen{ background:linear-gradient(135deg, #1E3A8A, #3B82F6); }
+  .temp-box h3{ font-family:'Chakra Petch', sans-serif; font-size:1.3rem; margin-bottom:8px; }
+  .temp-box .deg{ font-size:2rem; font-weight:700; }
+  .temp-box .live-reading{ font-family:'IBM Plex Mono', monospace; font-size:1.6rem; font-weight:600; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .temp-box .live-reading .dot{ width:8px; height:8px; border-radius:50%; background:#fff; animation:twLivePulse 1.4s infinite; }
+  @keyframes twLivePulse{ 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+  .temp-box .live-lbl{ font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; opacity:.85; margin-top:4px; }
+  .gauge-track{ height:8px; background:rgba(255,255,255,.3); border-radius:6px; margin-top:12px; overflow:hidden; }
+  .gauge-fill{ height:100%; background:#fff; border-radius:6px; transition:width .6s ease; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo"><i class="fa-solid fa-bolt"></i> ทันควัน DISPATCH</a>
+  <button class="nav-toggle" aria-label="เปิดเมนู" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="tankwan-booking.html">จองส่งพัสดุ</a>
+    <a href="tankwan-tracking.html">ติดตามพัสดุ</a>
+    <a href="tankwan-rates.html">เช็คราคา</a>
+    <a href="tankwan-cold-chain.html">คุมอุณหภูมิ</a>
+    <a href="tankwan-help.html">ช่วยเหลือ</a>
+  </nav>
+</header>
+
+<div class="wrap-narrow">
+  <div class="cold-card">
+    <h1 style="font-family:'Chakra Petch';"><i class="fa-solid fa-snowflake" style="color:var(--blue);"></i> บริการจัดส่งพัสดุควบคุมอุณหภูมิ</h1>
+    <p style="color:#6B7280;">มั่นใจด้วยกล่องและกระเป๋าจัดส่งพิเศษที่รักษาระดับความเย็นอย่างต่อเนื่องสำหรับอาหาร ของสด และยา พร้อมเซนเซอร์ติดตามอุณหภูมิระหว่างการขนส่ง</p>
+
+    <div class="grid-2">
+      <div class="temp-box chilled">
+        <h3>แช่เย็น (Chilled)</h3>
+        <div class="deg">0°C ถึง 8°C</div>
+        <p style="margin-top:10px; font-size:0.9rem;">เหมาะสำหรับ ผัก ผลไม้ นม อาหารปรุงสุก</p>
+        <div class="live-reading"><span class="dot"></span><span id="chilledReading">4.2°C</span></div>
+        <div class="live-lbl">อุณหภูมิภายในกล่องแบบจำลอง</div>
+        <div class="gauge-track"><div class="gauge-fill" id="chilledGauge" style="width:50%;"></div></div>
+      </div>
+      <div class="temp-box frozen">
+        <h3>แช่แข็ง (Frozen)</h3>
+        <div class="deg">ต่ำกว่า -15°C</div>
+        <p style="margin-top:10px; font-size:0.9rem;">เหมาะสำหรับ เนื้อสัตว์ ไอศกรีม อาหารแช่แข็ง</p>
+        <div class="live-reading"><span class="dot"></span><span id="frozenReading">-17.5°C</span></div>
+        <div class="live-lbl">อุณหภูมิภายในกล่องแบบจำลอง</div>
+        <div class="gauge-track"><div class="gauge-fill" id="frozenGauge" style="width:50%;"></div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:30px; text-align:center;">
+      <a href="tankwan-booking.html?service=cold" style="background:var(--blue); color:#fff; padding:12px 30px; border-radius:8px; text-decoration:none; font-weight:700; display:inline-block;">จองส่งสินค้าแช่เย็น/แช่แข็ง →</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 ทันควัน DISPATCH · เว็บไซต์จำลองสำหรับโปรเจกต์การเรียน</p>
+</footer>
+
+<script src="js/tankwan-utils.js"></script>
+<script src="js/tankwan-nav.js"></script>
+<script src="js/tankwan-audio.js"></script>
+<script>
+  // จำลองค่าที่อ่านได้จากเซนเซอร์อุณหภูมิ (สุ่มขยับเล็กน้อยรอบค่ากึ่งกลางของแต่ละช่วง)
+  function simulate(elId, gaugeId, min, max){
+    const mid = (min + max) / 2;
+    const wobble = (Math.random() - 0.5) * (max - min) * 0.3;
+    const val = Math.min(max, Math.max(min, mid + wobble));
+    document.getElementById(elId).textContent = val.toFixed(1) + '°C';
+    const pct = ((val - min) / (max - min)) * 100;
+    document.getElementById(gaugeId).style.width = pct.toFixed(0) + '%';
+  }
+  function tickAll(){
+    simulate('chilledReading', 'chilledGauge', 0, 8);
+    simulate('frozenReading', 'frozenGauge', -20, -15);
+  }
+  tickAll();
+  setInterval(tickAll, 2500);
+</script>
+
+</body>
+</html>

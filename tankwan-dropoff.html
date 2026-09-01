@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>จุดรับ-ส่งพัสดุ — ทันควัน DISPATCH</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Sarabun:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/tankwan-core.css">
+<style>
+  .hero-mini{ background: radial-gradient(circle at 85% -10%, rgba(255,92,92,0.22), transparent 45%), linear-gradient(180deg, var(--ink) 0%, #101a2c 100%); color:#fff; padding:56px 6% 80px; }
+  .wrap{ max-width:960px; margin:0 auto; padding:50px 6%; }
+
+  .filter-row{ display:flex; gap:10px; margin-bottom:20px; }
+  .filter-row input{ flex:1; padding:12px 16px; border:2px solid var(--line); border-radius:8px; }
+  .filter-row input:focus{ outline:none; border-color:var(--coral); }
+
+  .point-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px; margin-top:8px; }
+  .point-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+  .point-card .name{ font-weight:700; font-size:1rem; color:var(--ink); display:flex; align-items:center; gap:8px; }
+  .point-card .name i{ color:var(--coral); }
+  .point-card .addr{ font-size:0.85rem; color:var(--gray); margin:8px 0; }
+  .point-card .meta{ font-size:0.8rem; font-family:'IBM Plex Mono', monospace; display:flex; justify-content:space-between; color:var(--coral-deep); }
+  .no-results{ color:var(--gray); text-align:center; padding:20px; }
+
+  .ticket{ background:var(--card); border-radius:14px; box-shadow:0 10px 30px rgba(14,20,32,0.08); padding:28px; margin-top:24px; }
+  .btn-action{ width:100%; }
+  .confirm-ticket{ display:none; margin-top:20px; background:var(--ink); color:#fff; border-radius:10px; padding:22px; font-family:'IBM Plex Mono', monospace; text-align:center; }
+  .confirm-ticket .code{ font-family:'Chakra Petch', sans-serif; font-size:1.8rem; color:var(--coral); font-weight:700; }
+  .confirm-ticket .qr{ width:96px; height:96px; margin:14px auto; background:
+      repeating-linear-gradient(0deg,#fff 0 6px,#0E1420 6px 12px),
+      repeating-linear-gradient(90deg,#fff 0 6px,#0E1420 6px 12px);
+      background-blend-mode:difference; border-radius:6px; }
+  .confirm-ticket .validity{ font-size:.85rem; color:#b9c2d1; margin-top:8px; }
+  .ticket-actions{ display:flex; gap:8px; margin-top:14px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo"><i class="fa-solid fa-bolt"></i> ทันควัน DISPATCH</a>
+  <button class="nav-toggle" aria-label="เปิดเมนู" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="tankwan-booking.html">จองส่งพัสดุ</a>
+    <a href="tankwan-tracking.html">ติดตามพัสดุ</a>
+    <a href="tankwan-rates.html">เช็คราคา</a>
+    <a href="tankwan-dropoff.html">จุดดรอป/ล็อกเกอร์</a>
+    <a href="tankwan-coverage.html">พื้นที่บริการ</a>
+    <a href="tankwan-help.html">ช่วยเหลือ</a>
+  </nav>
+</header>
+
+<section class="hero-mini">
+  <h1>จุดรับ-ส่งพัสดุ (Drop-off Points)</h1>
+  <p>ฝากพัสดุเองที่จุดดรอปหรือตู้ล็อกเกอร์ใกล้บ้าน ค่าส่งถูกกว่า เรียกไรเดอร์ง่ายกว่า</p>
+</section>
+
+<div class="wrap">
+  <h2>สาขาจุดดรอปและตู้ล็อกเกอร์ใกล้คุณ</h2>
+  <div class="filter-row">
+    <label for="pointFilter" class="visually-hidden">ค้นหาจุดบริการ</label>
+    <input type="text" id="pointFilter" placeholder="ค้นหาด้วยชื่อจุดหรือย่าน เช่น นิมมาน, วโรรส">
+  </div>
+  <div class="point-grid" id="pointGrid"></div>
+  <p class="no-results" id="noResults" style="display:none;">ไม่พบจุดบริการที่ตรงกับคำค้นหา</p>
+
+  <div class="ticket">
+    <h3>จองช่องฝากพัสดุล่วงหน้า</h3>
+    <div class="grid-2" style="margin-top:14px;">
+      <div class="field">
+        <label for="drpPoint">เลือกจุดรับพัสดุ</label>
+        <select id="drpPoint"></select>
+      </div>
+      <div class="field">
+        <label for="drpWeight">น้ำหนักพัสดุ (กก.)</label>
+        <input type="number" id="drpWeight" value="1" min="0.1" step="0.1">
+      </div>
+    </div>
+    <button class="btn btn-coral btn-action" id="confirmDropoffBtn"><i class="fa-solid fa-barcode"></i> ออกบาร์โค้ดฝากพัสดุ</button>
+
+    <div class="confirm-ticket" id="drpTicket">
+      <div class="qr" aria-hidden="true"></div>
+      <div class="code" id="drpCode">TKW-DROP-000000</div>
+      <p style="margin-top:8px;">นำบาร์โค้ด/รหัสนี้ไปสแกนที่ตู้ล็อกเกอร์เพื่อเปิดช่องฝากพัสดุได้ทันที</p>
+      <div class="validity" id="drpValidity">ใช้ได้ภายใน 30:00 นาที</div>
+      <div class="ticket-actions">
+        <button class="btn btn-outline btn-sm" style="flex:1;color:#fff;border-color:#2b3547;" id="copyDrpBtn"><i class="fa-solid fa-copy"></i> คัดลอกรหัส</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 ทันควัน DISPATCH · เว็บไซต์จำลองสำหรับโปรเจกต์การเรียน</p>
+</footer>
+
+<script src="js/tankwan-utils.js"></script>
+<script src="js/tankwan-nav.js"></script>
+<script src="js/tankwan-audio.js"></script>
+<script>
+  const POINTS = [
+    { id:'nimman', name:'ล็อกเกอร์ นิมมานเหมินท์', addr:'ซ.นิมมานเหมินท์ 9 ต.สุเทพ อ.เมือง เชียงใหม่', hours:'เปิด 24 ชม.', dist:'~1.2 กม.' },
+    { id:'warorot', name:'จุดดรอป ตลาดวโรรส', addr:'ถ.วิชยานนท์ ต.ช้างม่อย อ.เมือง เชียงใหม่', hours:'08:00-20:00 น.', dist:'~3.4 กม.' },
+    { id:'changkhlan', name:'ล็อกเกอร์ ช้างคลาน (ไนท์บาซาร์)', addr:'ถ.ช้างคลาน ต.ช้างคลาน อ.เมือง เชียงใหม่', hours:'เปิด 24 ชม.', dist:'~2.8 กม.' },
+    { id:'hangdong', name:'จุดดรอป หางดง', addr:'ถ.เชียงใหม่-หางดง อ.หางดง เชียงใหม่', hours:'09:00-19:00 น.', dist:'~9.1 กม.' },
+  ];
+
+  const pointGrid = document.getElementById('pointGrid');
+  const drpPoint = document.getElementById('drpPoint');
+
+  function renderPoints(filter){
+    const q = (filter || '').trim().toLowerCase();
+    const filtered = POINTS.filter(p => !q || p.name.toLowerCase().includes(q) || p.addr.toLowerCase().includes(q));
+    document.getElementById('noResults').style.display = filtered.length ? 'none' : 'block';
+    pointGrid.innerHTML = filtered.map(p => `
+      <div class="point-card">
+        <div class="name"><i class="fa-solid fa-vault"></i> ${p.name}</div>
+        <div class="addr">${p.addr}</div>
+        <div class="meta"><span>${p.hours}</span><span>${p.dist}</span></div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('pointFilter').addEventListener('input', e => renderPoints(e.target.value));
+  renderPoints('');
+
+  drpPoint.innerHTML = POINTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+  let validityTimer = null;
+  document.getElementById('confirmDropoffBtn').addEventListener('click', function(){
+    const code = Tankwan.generateTrackingId('TKW-DROP');
+    document.getElementById('drpCode').textContent = code;
+    document.getElementById('drpTicket').style.display = 'block';
+
+    let secondsLeft = 30 * 60;
+    const validityEl = document.getElementById('drpValidity');
+    clearInterval(validityTimer);
+    validityTimer = setInterval(() => {
+      secondsLeft--;
+      const m = Math.floor(secondsLeft / 60), s = secondsLeft % 60;
+      if (secondsLeft <= 0) {
+        clearInterval(validityTimer);
+        validityEl.textContent = 'รหัสหมดอายุแล้ว กรุณาออกรหัสใหม่';
+        return;
+      }
+      validityEl.textContent = `ใช้ได้ภายใน ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} นาที`;
+    }, 1000);
+  });
+
+  document.getElementById('copyDrpBtn').addEventListener('click', () => {
+    const code = document.getElementById('drpCode').textContent;
+    navigator.clipboard?.writeText(code).then(() => Tankwan.showToast('คัดลอกรหัส ' + code + ' แล้ว', 'success'))
+      .catch(() => Tankwan.showToast('ไม่สามารถคัดลอกรหัสได้', 'error'));
+  });
+</script>
+
+</body>
+</html>

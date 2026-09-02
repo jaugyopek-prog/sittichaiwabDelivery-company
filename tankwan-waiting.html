@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สถานะจัดส่ง & รอเข้ารับ — ทันควัน DISPATCH</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Sarabun:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/tankwan-core.css">
+<style>
+  :root{ --amber:#FFB627; }
+  .status-card{ max-width:600px; margin:40px auto; background:var(--card); border-radius:16px; padding:32px; box-shadow:0 10px 25px rgba(0,0,0,0.05); text-align:center; }
+  .pulse-icon{ font-size:3rem; color:var(--amber); animation:pulse 1.5s infinite; margin-bottom:16px; }
+  @keyframes pulse { 0%{ transform:scale(0.95); opacity:0.8; } 50%{ transform:scale(1.1); opacity:1; } 100%{ transform:scale(0.95); opacity:0.8; } }
+  .order-id{ font-family:'IBM Plex Mono', monospace; font-size:1.15rem; background:#FFF3D9; color:#8A5A00; padding:6px 16px; border-radius:20px; display:inline-block; margin-bottom:12px; word-break:break-all; }
+  .summary{ text-align:left; background:#F8F9FB; border-radius:12px; padding:16px 18px; margin-top:18px; font-size:.9rem; }
+  .summary .row{ display:flex; justify-content:space-between; padding:5px 0; }
+  .summary .row span:first-child{ color:var(--gray); }
+  .countdown{ font-family:'IBM Plex Mono', monospace; font-size:2.2rem; font-weight:700; color:var(--ink); margin:14px 0 6px; }
+  .rider-info{ margin-top:24px; padding-top:20px; border-top:1px dashed #E5E7EB; text-align:left; display:flex; align-items:center; gap:16px; }
+  .rider-avatar{ width:50px; height:50px; background:#E5E7EB; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+  .btn-track{ display:inline-block; width:100%; margin-top:20px; background:var(--ink); color:#fff; padding:12px; border-radius:8px; text-decoration:none; font-weight:700; text-align:center; }
+  .btn-cancel{ display:inline-block; width:100%; margin-top:10px; background:none; border:2px solid var(--line); color:var(--gray); padding:10px; border-radius:8px; font-weight:700; cursor:pointer; }
+  .btn-cancel:hover{ border-color:var(--coral-deep); color:var(--coral-deep); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo"><i class="fa-solid fa-bolt"></i> ทันควัน DISPATCH</a>
+  <button class="nav-toggle" aria-label="เปิดเมนู" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="tankwan-booking.html">จองส่งพัสดุ</a>
+    <a href="tankwan-tracking.html">ติดตามพัสดุ</a>
+    <a href="tankwan-rates.html">เช็คราคา</a>
+    <a href="tankwan-help.html">ช่วยเหลือ</a>
+  </nav>
+</header>
+
+<div class="status-card">
+  <div class="pulse-icon" id="statusIcon"><i class="fa-solid fa-motorcycle"></i></div>
+  <div class="order-id" id="orderIdTag">หมายเลขการจอง: TKW-CITY-000000</div>
+  <h2 id="statusHeading">กำลังค้นหาไรเดอร์ที่ใกล้ที่สุด...</h2>
+  <div class="countdown" id="countdown">15:00</div>
+  <p style="color:var(--gray);" id="countdownLbl">คาดว่าไรเดอร์จะเข้ารับพัสดุภายในเวลานี้</p>
+
+  <div class="summary" id="summaryBox">
+    <div class="row"><span>ผู้รับ</span><span id="sumReceiver">—</span></div>
+    <div class="row"><span>บริการ</span><span id="sumService">—</span></div>
+    <div class="row"><span>เวลาเข้ารับ</span><span id="sumSchedule">ตอนนี้ (ด่วนที่สุด)</span></div>
+    <div class="row"><span>ค่าจัดส่งโดยประมาณ</span><span id="sumPrice">—</span></div>
+  </div>
+
+  <div class="rider-info">
+    <div class="rider-avatar"><i class="fa-solid fa-user-ninja"></i></div>
+    <div>
+      <div style="font-weight:700;">สมชาย วงศ์ใหญ่ (ไรเดอร์ประจำพื้นที่)</div>
+      <div style="font-size:0.85rem; color:var(--gray);">ทะเบียน กข-4921 เชียงใหม่ · 089-999-XXXX</div>
+    </div>
+  </div>
+
+  <a href="tankwan-tracking.html" id="trackLink" class="btn-track">ไปยังหน้าติดตามสถานะพัสดุสด →</a>
+  <button class="btn-cancel" id="cancelBtn"><i class="fa-solid fa-xmark"></i> ยกเลิกการจอง</button>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 ทันควัน DISPATCH · เว็บไซต์จำลองสำหรับโปรเจกต์การเรียน</p>
+</footer>
+
+<script src="js/tankwan-utils.js"></script>
+<script src="js/tankwan-nav.js"></script>
+<script src="js/tankwan-audio.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('order') || Tankwan.generateTrackingId('TKW-CITY');
+  const price = params.get('price');
+  const service = params.get('service');
+  const receiver = params.get('receiver');
+  const scheduled = params.get('scheduled');
+
+  document.getElementById('orderIdTag').textContent = 'หมายเลขการจอง: ' + orderId;
+  document.getElementById('sumReceiver').textContent = receiver || 'ไม่ได้ระบุ';
+  document.getElementById('sumService').textContent = service || 'ส่งด่วนปกติ (Express Pickup)';
+  document.getElementById('sumPrice').textContent = price ? Tankwan.formatTHB(price) : '—';
+  document.getElementById('sumSchedule').textContent = scheduled
+    ? new Date(scheduled).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' })
+    : 'ตอนนี้ (ด่วนที่สุด)';
+  document.getElementById('trackLink').href = 'tankwan-tracking.html?track_id=' + encodeURIComponent(orderId);
+
+  // ---- Live countdown to simulated rider pickup ----
+  let secondsLeft = 15 * 60;
+  const countdownEl = document.getElementById('countdown');
+  let cancelled = false;
+
+  function tick(){
+    if (cancelled) return;
+    if (secondsLeft <= 0) {
+      document.getElementById('statusHeading').textContent = 'ไรเดอร์เข้ารับพัสดุแล้ว';
+      document.getElementById('countdownLbl').textContent = 'กำลังเดินทางไปหาผู้รับ';
+      document.getElementById('statusIcon').innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--green);"></i>';
+      countdownEl.textContent = '00:00';
+      return;
+    }
+    const m = Math.floor(secondsLeft / 60), s = secondsLeft % 60;
+    countdownEl.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    secondsLeft--;
+    setTimeout(tick, 1000);
+  }
+  tick();
+
+  document.getElementById('cancelBtn').addEventListener('click', function(){
+    if (!window.confirm('ยืนยันยกเลิกการจองนี้หรือไม่?')) return;
+    cancelled = true;
+    document.getElementById('statusIcon').innerHTML = '<i class="fa-solid fa-ban" style="color:var(--coral-deep);"></i>';
+    document.getElementById('statusHeading').textContent = 'ยกเลิกการจองแล้ว';
+    document.getElementById('countdownLbl').textContent = 'หากต้องการส่งพัสดุใหม่ สามารถจองได้ทันที';
+    countdownEl.textContent = '--:--';
+    this.disabled = true;
+    Tankwan.showToast('ยกเลิกการจอง ' + orderId + ' เรียบร้อยแล้ว');
+  });
+</script>
+
+</body>
+</html>

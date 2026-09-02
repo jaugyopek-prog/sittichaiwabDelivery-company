@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ศูนย์ช่วยเหลือ & แจ้งเคลม — ทันควัน DISPATCH</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/tankwan-core.css">
+<style>
+  .wrap-narrow{ max-width:800px; margin:40px auto; padding:0 6%; }
+  .card-block{ background:#fff; border-radius:16px; padding:32px; box-shadow:0 10px 25px rgba(0,0,0,0.05); margin-bottom:24px; }
+  .faq-search{ display:flex; gap:10px; margin-bottom:16px; }
+  .faq-search input{ flex:1; padding:12px 16px; border:2px solid var(--line); border-radius:8px; }
+  .faq-search input:focus{ outline:none; border-color:var(--coral); }
+  details{ margin-bottom:12px; cursor:pointer; border-bottom:1px solid #f0f1f3; padding-bottom:10px; }
+  details summary{ font-weight:700; }
+  details p{ margin-top:8px; color:#6B7280; }
+  .claim-status-result{ margin-top:14px; padding:14px 16px; border-radius:10px; font-size:.9rem; display:none; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo"><i class="fa-solid fa-bolt"></i> ทันควัน DISPATCH</a>
+  <button class="nav-toggle" aria-label="เปิดเมนู" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="tankwan-booking.html">จองส่งพัสดุ</a>
+    <a href="tankwan-tracking.html">ติดตามพัสดุ</a>
+    <a href="tankwan-rates.html">เช็คราคา</a>
+    <a href="tankwan-help.html">ช่วยเหลือ</a>
+  </nav>
+</header>
+
+<div class="wrap-narrow">
+  <div class="card-block">
+    <h1 style="font-family:'Chakra Petch';"><i class="fa-solid fa-circle-question" style="color:var(--coral);"></i> คำถามที่พบบ่อย (FAQ)</h1>
+    <div class="faq-search">
+      <label for="faqSearch" class="visually-hidden">ค้นหาคำถาม</label>
+      <input type="text" id="faqSearch" placeholder="ค้นหาคำถาม เช่น ค่าธรรมเนียม, ยกเลิก, เคลม">
+    </div>
+    <div id="faqList"></div>
+    <p id="faqEmpty" style="display:none; color:var(--gray);">ไม่พบคำถามที่ตรงกับคำค้นหา ลองพิมพ์คำอื่น หรือติดต่อฝ่ายบริการลูกค้าด้านล่าง</p>
+  </div>
+
+  <div class="card-block">
+    <h2 style="font-family:'Chakra Petch';"><i class="fa-solid fa-magnifying-glass" style="color:var(--coral);"></i> ตรวจสอบสถานะเรื่องเคลม</h2>
+    <div class="field" style="margin-bottom:10px;">
+      <label for="claimIdInput">หมายเลขพัสดุที่แจ้งเคลม (Tracking ID)</label>
+      <input type="text" id="claimIdInput" placeholder="เช่น TKW-889900">
+    </div>
+    <button class="btn btn-outline" id="checkClaimBtn">ตรวจสอบสถานะ</button>
+    <div class="claim-status-result" id="claimStatusResult"></div>
+  </div>
+
+  <div class="card-block">
+    <h2 style="font-family:'Chakra Petch';"><i class="fa-solid fa-shield-halved" style="color:var(--coral);"></i> ยื่นเรื่องแจ้งเคลมพัสดุเสียหาย / สูญหาย</h2>
+    <form id="claimForm" novalidate>
+      <div class="field" data-field="claimTrack">
+        <label for="claimTrack">หมายเลขพัสดุ (Tracking ID)</label>
+        <input type="text" id="claimTrack" placeholder="เช่น TKW-889900">
+        <div class="error-msg">กรุณากรอกหมายเลขพัสดุ</div>
+      </div>
+      <div class="field" data-field="claimDetail">
+        <label for="claimDetail">รายละเอียดความเสียหาย</label>
+        <textarea rows="3" id="claimDetail" placeholder="อธิบายรายละเอียดสินค้าและสภาพพัสดุที่พบปัญหา"></textarea>
+        <div class="error-msg">กรุณาอธิบายรายละเอียดปัญหาที่พบ</div>
+      </div>
+      <button type="submit" class="btn btn-coral">ส่งเอกสารแจ้งเคลม</button>
+    </form>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 ทันควัน DISPATCH · เว็บไซต์จำลองสำหรับโปรเจกต์การเรียน</p>
+</footer>
+
+<script src="js/tankwan-utils.js"></script>
+<script src="js/tankwan-nav.js"></script>
+<script src="js/tankwan-audio.js"></script>
+<script>
+  const FAQS = [
+    { q: 'ระยะเวลาในการเข้ารับพัสดุ?', a: 'ไรเดอร์จะเดินทางไปเข้ารับพัสดุภายใน 15-30 นาทีหลังจากกดยืนยันรายการจอง' },
+    { q: 'วงเงินรับประกันพัสดุเสียหาย?', a: 'พัสดุทุกชิ้นได้รับการคุ้มครองวงเงินสูงสุด 2,000 บาทโดยไม่มีค่าใช้จ่ายเพิ่มเติม' },
+    { q: 'ยกเลิกการจองได้หรือไม่?', a: 'สามารถยกเลิกได้ฟรีก่อนไรเดอร์เข้ารับพัสดุ ผ่านหน้าสถานะการจองของคุณ' },
+    { q: 'ค่าธรรมเนียม COD คิดอย่างไร?', a: 'ร้านค้าทั่วไปเสียค่าธรรมเนียม 2% ต่อออเดอร์ หรือ 1.5% สำหรับแพ็กเกจ Pro โอนเงินภายใน 24 ชม.' },
+    { q: 'ส่งพัสดุแช่เย็น/แช่แข็งได้อย่างไร?', a: 'เลือกบริการ "คุมอุณหภูมิ" ตอนจอง ระบบจะจัดไรเดอร์ที่มีกล่องรักษาอุณหภูมิให้โดยเฉพาะ' },
+    { q: 'จุดดรอป/ล็อกเกอร์เปิดกี่โมง?', a: 'ล็อกเกอร์ส่วนใหญ่เปิดบริการ 24 ชั่วโมง ส่วนจุดดรอปที่มีเจ้าหน้าที่จะเปิดตามเวลาที่ระบุในหน้าจุดบริการ' },
+  ];
+
+  function renderFaqs(filter){
+    const q = (filter || '').trim().toLowerCase();
+    const filtered = FAQS.filter(f => !q || f.q.toLowerCase().includes(q) || f.a.toLowerCase().includes(q));
+    document.getElementById('faqEmpty').style.display = filtered.length ? 'none' : 'block';
+    document.getElementById('faqList').innerHTML = filtered.map(f => `
+      <details><summary>${f.q}</summary><p>${f.a}</p></details>
+    `).join('');
+  }
+  document.getElementById('faqSearch').addEventListener('input', e => renderFaqs(e.target.value));
+  renderFaqs('');
+
+  document.getElementById('checkClaimBtn').addEventListener('click', function(){
+    const id = document.getElementById('claimIdInput').value.trim();
+    const resultEl = document.getElementById('claimStatusResult');
+    if (!id) { Tankwan.showToast('กรุณากรอกหมายเลขพัสดุ', 'error'); return; }
+    const seed = id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+    const stages = ['ได้รับเรื่องแล้ว รอเจ้าหน้าที่ตรวจสอบ', 'กำลังตรวจสอบกับไรเดอร์ผู้จัดส่ง', 'อนุมัติการชดเชยแล้ว รอโอนเงิน'];
+    const stage = stages[seed % stages.length];
+    resultEl.style.display = 'block';
+    resultEl.style.background = '#F8F9FB';
+    resultEl.innerHTML = `<b>เรื่องเคลม ${id}:</b> ${stage}`;
+  });
+
+  function setError(fieldKey, hasError){
+    const el = document.querySelector(`[data-field="${fieldKey}"]`);
+    if (el) el.classList.toggle('has-error', hasError);
+  }
+
+  document.getElementById('claimForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const track = document.getElementById('claimTrack').value.trim();
+    const detail = document.getElementById('claimDetail').value.trim();
+    setError('claimTrack', !track);
+    setError('claimDetail', !detail);
+    if (!track || !detail) {
+      Tankwan.showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+      return;
+    }
+    Tankwan.showToast('ส่งข้อมูลการเคลมเรียบร้อย เจ้าหน้าที่จะติดต่อกลับภายใน 24 ชม.', 'success');
+    this.reset();
+  });
+</script>
+
+</body>
+</html>

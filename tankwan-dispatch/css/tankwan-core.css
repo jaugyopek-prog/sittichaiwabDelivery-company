@@ -1,0 +1,209 @@
+/* =========================================================================
+   ทันควัน DISPATCH — Core design system
+   ใช้ร่วมกันทุกหน้า เพื่อลดโค้ดซ้ำซ้อนและให้หน้าตาเว็บไซต์เป็นมาตรฐานเดียวกัน
+   ========================================================================= */
+
+:root{
+  /* Brand */
+  --ink:#0E1420;
+  --ink-soft:#141B2B;
+  --paper:#EEF1F4;
+  --card:#FFFFFF;
+  --coral:#FF5C5C;
+  --coral-deep:#D93F3F;
+  --coral-soft:#FFE7E7;
+  --gray:#6B7280;
+  --gray-light:#9CA3AF;
+  --line:#DADFE6;
+
+  /* Status colors (reused for badges, timelines, cold-chain, waiting states) */
+  --green:#22C55E;
+  --green-deep:#15803D;
+  --green-soft:#DCFCE7;
+  --amber:#FFB627;
+  --amber-deep:#8A5A00;
+  --amber-soft:#FFF3D9;
+  --blue:#0099FF;
+  --blue-deep:#0B63B8;
+  --blue-soft:#E3F4FF;
+
+  /* Layout tokens */
+  --radius-sm:8px;
+  --radius-md:12px;
+  --radius-lg:16px;
+  --shadow-sm:0 5px 15px rgba(14,20,32,.05);
+  --shadow-md:0 10px 30px rgba(14,20,32,.08);
+  --shadow-lg:0 15px 35px rgba(14,20,32,.2);
+  --header-h:68px;
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  *, *::before, *::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:#1B2130;
+  font-family:'Sarabun', sans-serif;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{ font-family:'Chakra Petch', sans-serif; line-height:1.25; margin:0 0 .5em; }
+p{ margin:0 0 1em; }
+a{ color:inherit; }
+img{ max-width:100%; display:block; }
+
+:focus-visible{ outline:3px solid var(--coral); outline-offset:2px; border-radius:4px; }
+
+.wrap{ max-width:1100px; margin:0 auto; padding:0 6%; }
+.visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* ---------- Header / Nav ---------- */
+.site-header{
+  background:var(--ink);
+  color:#fff;
+  padding:0 6%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:100;
+  border-bottom:3px solid var(--coral);
+  min-height:var(--header-h);
+  gap:12px;
+}
+.site-header .logo{
+  display:flex; align-items:center; gap:10px;
+  font-family:'Chakra Petch', sans-serif;
+  font-size:1.2rem; font-weight:700;
+  text-decoration:none; color:#fff;
+  white-space:nowrap;
+}
+.site-header .logo i{ color:var(--coral); }
+
+.nav-toggle{
+  display:none;
+  background:none; border:1px solid #2b3547; color:#fff;
+  width:40px; height:40px; border-radius:8px;
+  font-size:1.1rem; cursor:pointer; flex-shrink:0;
+}
+.nav-toggle:hover{ border-color:var(--coral); }
+
+.site-header nav{ display:flex; gap:18px; flex-wrap:wrap; justify-content:flex-end; padding:14px 0; }
+.site-header nav a{
+  text-decoration:none; color:#cfd6e2; font-size:.88rem; font-weight:600;
+  transition:color .15s; white-space:nowrap; padding:6px 2px;
+}
+.site-header nav a:hover, .site-header nav a.active{ color:var(--coral); }
+.site-header nav a.active{ border-bottom:2px solid var(--coral); }
+
+@media (max-width:880px){
+  .nav-toggle{ display:flex; align-items:center; justify-content:center; }
+  .site-header{ flex-wrap:wrap; }
+  .site-header nav{
+    display:none;
+    width:100%;
+    flex-direction:column;
+    gap:2px;
+    padding:8px 0 16px;
+    border-top:1px solid #222c3d;
+  }
+  .site-header nav.open{ display:flex; }
+  .site-header nav a{ padding:10px 4px; }
+  .site-header nav a.active{ border-bottom:none; border-left:3px solid var(--coral); padding-left:12px; }
+}
+
+/* ---------- Footer ---------- */
+.site-footer{
+  background:var(--ink); color:#8791a4; text-align:center;
+  padding:32px 20px; font-size:.85rem; margin-top:60px;
+  border-top:1px solid #222c3d;
+}
+.site-footer a{ color:var(--coral); text-decoration:none; margin:0 8px; }
+.site-footer .foot-links{ margin-top:10px; }
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:none; border-radius:var(--radius-sm); font-weight:700; font-size:1rem;
+  padding:13px 26px; cursor:pointer; text-decoration:none;
+  transition:transform .1s ease, background .15s ease, box-shadow .15s ease;
+}
+.btn:active{ transform:translateY(1px); }
+.btn-coral{ background:var(--coral); color:#fff; }
+.btn-coral:hover{ background:var(--coral-deep); }
+.btn-ink{ background:var(--ink); color:#fff; }
+.btn-ink:hover{ background:var(--ink-soft); }
+.btn-outline{ background:transparent; color:var(--ink); border:2px solid var(--line); }
+.btn-outline:hover{ border-color:var(--coral); color:var(--coral-deep); }
+.btn-block{ width:100%; }
+.btn-sm{ padding:9px 16px; font-size:.85rem; }
+.btn[disabled]{ opacity:.55; cursor:not-allowed; }
+
+/* ---------- Cards ---------- */
+.card{ background:var(--card); border-radius:var(--radius-lg); border:1px solid var(--line); box-shadow:var(--shadow-sm); }
+
+/* ---------- Forms ---------- */
+.field{ margin-bottom:18px; }
+.field label{ display:block; font-size:.85rem; font-weight:600; color:var(--gray); margin-bottom:6px; }
+.field .hint{ font-size:.78rem; color:var(--gray-light); margin-top:5px; }
+.field input, .field select, .field textarea{
+  width:100%; padding:12px 14px; border:2px solid var(--line); border-radius:var(--radius-sm);
+  font-family:inherit; font-size:.95rem; background:#fff; color:#1B2130;
+  transition:border-color .15s, box-shadow .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus{
+  outline:none; border-color:var(--coral); box-shadow:0 0 0 3px var(--coral-soft);
+}
+.field.has-error input, .field.has-error select, .field.has-error textarea{
+  border-color:var(--coral-deep); background:#FFF7F7;
+}
+.field .error-msg{ display:none; color:var(--coral-deep); font-size:.8rem; margin-top:6px; font-weight:600; }
+.field.has-error .error-msg{ display:block; }
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+@media (max-width:640px){ .grid-2, .grid-3{ grid-template-columns:1fr; } }
+
+/* ---------- Badges ---------- */
+.badge{ display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:.8rem; font-weight:700; }
+.badge-green{ background:var(--green-soft); color:var(--green-deep); }
+.badge-amber{ background:var(--amber-soft); color:var(--amber-deep); }
+.badge-blue{ background:var(--blue-soft); color:var(--blue-deep); }
+.badge-gray{ background:#EEF1F4; color:var(--gray); }
+
+/* ---------- Motion-safe fade-in-up (used for scroll/entry reveals) ---------- */
+@keyframes twFadeInUp{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+.fade-in-up{ animation:twFadeInUp .5s ease both; }
+
+/* ---------- Toast (lightweight in-page notifications, replaces window.alert) ---------- */
+.tw-toast{
+  position:fixed; left:50%; bottom:26px; transform:translate(-50%, 20px);
+  background:var(--ink); color:#fff; padding:14px 22px; border-radius:10px;
+  font-size:.9rem; font-weight:600; box-shadow:var(--shadow-lg);
+  opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
+  z-index:1000; max-width:90vw; text-align:center;
+}
+.tw-toast.show{ opacity:1; transform:translate(-50%, 0); }
+.tw-toast.tw-toast-error{ background:var(--coral-deep); }
+.tw-toast.tw-toast-success{ background:var(--green-deep); }
+
+/* ---------- Background music toggle (js/tankwan-audio.js) ---------- */
+.tw-bgm-toggle{
+  position:fixed; right:20px; bottom:20px; z-index:999;
+  width:48px; height:48px; border-radius:50%; border:none;
+  background:var(--coral); color:#fff; font-size:1.1rem;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:var(--shadow-lg);
+  transition:background .15s ease, transform .1s ease;
+}
+.tw-bgm-toggle:hover{ background:var(--coral-deep); }
+.tw-bgm-toggle:active{ transform:scale(.94); }
+.tw-bgm-toggle.is-muted{ background:var(--ink-soft); }
+@media (max-width:520px){
+  .tw-bgm-toggle{ right:14px; bottom:14px; width:44px; height:44px; font-size:1rem; }
+}
